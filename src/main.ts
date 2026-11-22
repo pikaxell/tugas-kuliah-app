@@ -18,6 +18,8 @@ let daftarTugas: TugasKuliah[] = storage.ambil([
   },
 ]);
 
+let idSedangDiedit: number | null = null;
+
 const appContainer = document.querySelector<HTMLDivElement>("#app")!;
 appContainer.innerHTML = `
   <header>
@@ -59,10 +61,13 @@ appContainer.innerHTML = `
 `;
 
 const form = document.querySelector<HTMLFormElement>("#task-form")!;
+const formTitle = document.querySelector<HTMLElement>("#form-title")!;
 const inputMatkul = document.querySelector<HTMLInputElement>("#matkul")!;
 const inputTenggat = document.querySelector<HTMLInputElement>("#tenggat")!;
 const inputJudul = document.querySelector<HTMLInputElement>("#judul")!;
 const inputPrioritas = document.querySelector<HTMLInputElement>("#prioritas")!;
+const btnSubmit = document.querySelector<HTMLButtonElement>("#btn-submit")!;
+const btnCancel = document.querySelector<HTMLButtonElement>("#btn-cancel")!;
 const taskListEl = document.querySelector<HTMLDivElement>("#task-list")!;
 const taskCountEl = document.querySelector<HTMLSpanElement>("#task-count")!;
 
@@ -99,20 +104,87 @@ function renderDaftarTugas(): void {
     .join("");
 }
 
+function resetForm(): void {
+  idSedangDiedit = null;
+  form.reset();
+  formTitle.textContent = "Tambah Tugas Baru";
+  btnSubmit.textContent = "Simpan";
+  btnCancel.style.display = "none";
+}
+
 form.addEventListener("submit", (e: SubmitEvent) => {
   e.preventDefault();
-  const tugasBaru: TugasKuliah = {
-    id: Date.now(),
-    mataKuliah: inputMatkul.value.trim(),
-    judulTugas: inputJudul.value.trim(),
-    tenggat: inputTenggat.value,
-    status: "Belum Selesai",
-    prioritasTinggi: inputPrioritas.checked,
-  };
-  daftarTugas = [tugasBaru, ...daftarTugas];
+
+  const mataKuliah: string = inputMatkul.value.trim();
+  const tenggat: string = inputTenggat.value;
+  const judulTugas: string = inputJudul.value.trim();
+  const prioritasTinggi: boolean = inputPrioritas.checked;
+
+  if (!mataKuliah || !tenggat || !judulTugas) return;
+
+  if (idSedangDiedit !== null) {
+    daftarTugas = daftarTugas.map((item) =>
+      item.id === idSedangDiedit
+        ? { ...item, mataKuliah, tenggat, judulTugas, prioritasTinggi }
+        : item,
+    );
+  } else {
+    const tugasBaru: TugasKuliah = {
+      id: Date.now(),
+      mataKuliah,
+      judulTugas,
+      tenggat,
+      status: "Belum Selesai",
+      prioritasTinggi,
+    };
+    daftarTugas = [tugasBaru, ...daftarTugas];
+  }
+
   storage.simpan(daftarTugas);
   renderDaftarTugas();
-  form.reset();
+  resetForm();
+});
+
+btnCancel.addEventListener("click", resetForm);
+
+taskListEl.addEventListener("click", (e: MouseEvent) => {
+  const target = e.target as HTMLElement;
+  const button = target.closest("button");
+  if (!button) return;
+
+  const action = button.dataset.action;
+  const id = Number(button.dataset.id);
+
+  if (action === "toggle") {
+    daftarTugas = daftarTugas.map((item) => {
+      if (item.id === id) {
+        const statusBaru: StatusTugas =
+          item.status === "Belum Selesai" ? "Selesai" : "Belum Selesai";
+        return { ...item, status: statusBaru };
+      }
+      return item;
+    });
+    storage.simpan(daftarTugas);
+    renderDaftarTugas();
+  } else if (action === "edit") {
+    const tugasDitemukan = daftarTugas.find((item) => item.id === id);
+    if (!tugasDitemukan) return;
+
+    idSedangDiedit = tugasDitemukan.id;
+    inputMatkul.value = tugasDitemukan.mataKuliah;
+    inputTenggat.value = tugasDitemukan.tenggat;
+    inputJudul.value = tugasDitemukan.judulTugas;
+    inputPrioritas.checked = tugasDitemukan.prioritasTinggi;
+
+    formTitle.textContent = "Edit Tugas";
+    btnSubmit.textContent = "Update";
+    btnCancel.style.display = "inline-block";
+  } else if (action === "delete") {
+    daftarTugas = daftarTugas.filter((item) => item.id !== id);
+    if (idSedangDiedit === id) resetForm();
+    storage.simpan(daftarTugas);
+    renderDaftarTugas();
+  }
 });
 
 renderDaftarTugas();
