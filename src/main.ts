@@ -58,6 +58,17 @@ appContainer.innerHTML = `
     <h3>Daftar Tugas (<span id="task-count">0</span>)</h3>
     <div id="task-list"></div>
   </div>
+
+  <section style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #ddd; font-size: 0.9rem; color: #444;">
+    <h3 style="margin-bottom: 10px; color: #222;">Penjelasan Teknis Pengembangan</h3>
+    <ul style="padding-left: 20px; line-height: 1.6;">
+      <li><strong>Git &amp; GitHub:</strong> Digunakan untuk melacak riwayat perubahan kode melalui commit, mengelola fitur pada branch terpisah, berkolaborasi melalui Pull Request, serta menyelesaikan merge conflict.</li>
+      <li><strong>npm:</strong> Manajer paket untuk menginstal pustaka, mengatur skrip otomatisasi di <code>package.json</code>, serta mengelola <em>dependencies</em> dan <em>devDependencies</em> dengan aturan <em>semantic versioning</em>.</li>
+      <li><strong>TypeScript:</strong> Memberikan pengecekan tipe data statis (<em>primitive types</em>, <em>interface</em>, <em>union type</em>, dan <em>generics</em>) untuk mencegah bug sebelum kode dijalankan di browser.</li>
+      <li><strong>Vite &amp; Environment Variables:</strong> Build tool modern yang mempermudah proses development dan build. File <code>.env</code> (dengan awalan <code>VITE_</code>) dipakai untuk menyimpan konfigurasi non-rahasia seperti nama dan versi aplikasi tanpa mengekspos data sensitif ke GitHub.</li>
+      <li><strong>Peran Compiler, Transpiler, dan Bundler:</strong> <em>Compiler/Transpiler</em> (seperti <code>tsc</code> dan <code>esbuild</code> di Vite) mengubah sintaks TypeScript menjadi JavaScript standar yang dipahami browser. <em>Bundler</em> (<code>Rollup</code> saat perintah <code>npm run build</code>) menggabungkan dan mengoptimalkan seluruh file JS, CSS, dan aset menjadi paket siap produksi.</li>
+    </ul>
+  </section>
 `;
 
 const form = document.querySelector<HTMLFormElement>("#task-form")!;
